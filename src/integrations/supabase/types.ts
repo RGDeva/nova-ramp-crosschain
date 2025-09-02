@@ -14,7 +14,130 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      deposits: {
+        Row: {
+          amount_usdc: number | null
+          created_at: string | null
+          id: string
+          max_per_order: number | null
+          min_per_order: number | null
+          status: string | null
+          tx_create: string | null
+          updated_at: string | null
+          user_id: string | null
+          verifier: string | null
+        }
+        Insert: {
+          amount_usdc?: number | null
+          created_at?: string | null
+          id?: string
+          max_per_order?: number | null
+          min_per_order?: number | null
+          status?: string | null
+          tx_create?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verifier?: string | null
+        }
+        Update: {
+          amount_usdc?: number | null
+          created_at?: string | null
+          id?: string
+          max_per_order?: number | null
+          min_per_order?: number | null
+          status?: string | null
+          tx_create?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verifier?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deposits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          chain_id: number | null
+          created_at: string | null
+          fiat_amount: number | null
+          fiat_currency: string | null
+          id: string
+          intent_hash: string | null
+          provider: string | null
+          status: string | null
+          token_amount: number | null
+          tx_fulfill: string | null
+          tx_signal: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          chain_id?: number | null
+          created_at?: string | null
+          fiat_amount?: number | null
+          fiat_currency?: string | null
+          id?: string
+          intent_hash?: string | null
+          provider?: string | null
+          status?: string | null
+          token_amount?: number | null
+          tx_fulfill?: string | null
+          tx_signal?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          chain_id?: number | null
+          created_at?: string | null
+          fiat_amount?: number | null
+          fiat_currency?: string | null
+          id?: string
+          intent_hash?: string | null
+          provider?: string | null
+          status?: string | null
+          token_amount?: number | null
+          tx_fulfill?: string | null
+          tx_signal?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string | null
+          id: string
+          primary_address: string
+          privy_user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          primary_address: string
+          privy_user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          primary_address?: string
+          privy_user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
