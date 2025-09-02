@@ -3,9 +3,11 @@ import { ArrowRight, Shield, Zap, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Layout from "@/components/Layout";
+import { useAuth } from "@/contexts/PrivyProvider";
 import heroImage from "@/assets/hero-image.jpg";
 
 const Index = () => {
+  const { isAuthenticated, login } = useAuth();
   const features = [
     {
       icon: Shield,
@@ -41,28 +43,40 @@ const Index = () => {
                   Cross-Chain Ramps
                 </h1>
                 <p className="text-lg text-muted-foreground max-w-lg">
-                  Nova Ramp enables seamless, private conversion between fiat and crypto 
-                  using zero-knowledge proofs. Experience the next generation of on/off ramps.
+                  Pay off-chain. Prove privately. Receive USDC in minutes.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button 
-                    size="lg" 
-                    className="bg-gradient-primary hover:opacity-90 transition-opacity duration-nova"
-                    asChild
-                  >
-                    <Link to="/onramp" className="flex items-center space-x-2">
-                      <span>Start On-Ramp</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
-                    className="border-primary/20 hover:bg-primary/10"
-                    asChild
-                  >
-                    <Link to="/offramp">Try Off-Ramp</Link>
-                  </Button>
+                  {isAuthenticated ? (
+                    <>
+                      <Button 
+                        size="lg" 
+                        className="bg-gradient-primary hover:opacity-90 transition-opacity duration-nova"
+                        asChild
+                      >
+                        <Link to="/onramp" className="flex items-center space-x-2">
+                          <span>Start On-Ramp</span>
+                          <ArrowRight className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <Button 
+                        size="lg" 
+                        variant="outline" 
+                        className="border-primary/20 hover:bg-primary/10"
+                        asChild
+                      >
+                        <Link to="/offramp">Try Off-Ramp</Link>
+                      </Button>
+                    </>
+                  ) : (
+                    <Button 
+                      size="lg" 
+                      className="bg-gradient-primary hover:opacity-90 transition-opacity duration-nova"
+                      onClick={login}
+                    >
+                      <span>Connect Wallet</span>
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
               <div className="relative animate-scale-in">
