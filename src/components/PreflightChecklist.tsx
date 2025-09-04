@@ -61,11 +61,18 @@ export const PreflightChecklist: React.FC<PreflightChecklistProps> = ({
   onConnectWallet,
   onConnectPrivy,
 }) => {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, login } = useAuth()
   const { isConnected, address } = useAccount()
   const { data: balance } = useBalance({
     address,
     chainId: base.id,
+  })
+
+  console.log('PreflightChecklist debug:', {
+    isConnected,
+    address,
+    balance: balance?.formatted,
+    isAuthenticated
   })
 
   // Mock RPC health check - in real app would ping the RPC
@@ -79,23 +86,37 @@ export const PreflightChecklist: React.FC<PreflightChecklistProps> = ({
   const rpcStatus = rpcHealthy ? 'ok' : 'fail'
   const gasStatus = isConnected ? (hasEnoughGas ? 'ok' : 'warn') : 'fail'
 
+  const handleConnectWallet = () => {
+    console.log('Connecting wallet...')
+    onConnectWallet()
+  }
+
+  const handleConnectPrivy = () => {
+    console.log('Connecting Privy...')
+    if (login) {
+      login()
+    } else {
+      onConnectPrivy()
+    }
+  }
+
   return (
     <Card className="bg-gradient-surface border-border/50">
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium text-foreground">Pre-flight Check</h3>
           <div className="flex items-center space-x-1">
-            <CheckItem
-              status={walletStatus}
-              label="Wallet"
-              onClick={onConnectWallet}
-              clickable={!isConnected}
-            />
+          <CheckItem 
+            status={walletStatus} 
+            label="Wallet" 
+            onClick={handleConnectWallet}
+            clickable={!isConnected}
+          />
             <span className="text-muted-foreground">•</span>
             <CheckItem
               status={privyStatus}
               label="PeerAuth"
-              onClick={onConnectPrivy}
+              onClick={handleConnectPrivy}
               clickable={!isAuthenticated}
             />
             <span className="text-muted-foreground">•</span>

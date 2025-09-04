@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { PrivyProvider as PrivyAuth, usePrivy } from '@privy-io/react-auth'
 import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { base, avalancheFuji } from 'wagmi/chains'
 import { config } from '@/lib/wagmi'
 
 const queryClient = new QueryClient()
@@ -69,12 +70,20 @@ export const PrivyProvider: React.FC<PrivyProviderProps> = ({ children }) => {
       appId={appId}
       config={{
         embeddedWallets: {
-          createOnLogin: 'users-without-wallets'
+          createOnLogin: 'users-without-wallets',
+          requireUserPasswordOnCreate: false,
+          priceDisplay: {
+            primary: 'fiat-currency',
+            secondary: 'native-token'
+          }
         },
         appearance: {
           theme: 'dark',
           accentColor: '#7C3AED',
+          showWalletLoginFirst: false,
         },
+        loginMethods: ['email', 'wallet'],
+        supportedChains: [base, avalancheFuji],
       }}
     >
       <WagmiProvider config={config}>
