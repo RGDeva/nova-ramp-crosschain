@@ -126,10 +126,10 @@ const Orders = () => {
                   txSignal={order.txSignal}
                   txFulfill={order.txFulfill}
                   createdAt={order.createdAt}
-                  onAuthenticate={handleAuthenticate}
-                  onGenerateProof={handleGenerateProof}
-                  onFulfill={handleFulfill}
-                  onRetry={handleRetry}
+                  onAuthenticate={() => handleAuthenticate(order.id)}
+                  onGenerateProof={() => handleGenerateProof(order.id)}
+                  onFulfill={() => handleFulfill(order.id)}
+                  onRetry={() => handleRetry(order.id)}
                 />
               ))}
             </div>
@@ -148,10 +148,10 @@ const Orders = () => {
                   txSignal={order.txSignal}
                   txFulfill={order.txFulfill}
                   createdAt={order.createdAt}
-                  onAuthenticate={handleAuthenticate}
-                  onGenerateProof={handleGenerateProof}
-                  onFulfill={handleFulfill}
-                  onRetry={handleRetry}
+                  onAuthenticate={() => handleAuthenticate(order.id)}
+                  onGenerateProof={() => handleGenerateProof(order.id)}
+                  onFulfill={() => handleFulfill(order.id)}
+                  onRetry={() => handleRetry(order.id)}
                 />
               ))}
             </div>
@@ -170,10 +170,10 @@ const Orders = () => {
                   txSignal={order.txSignal}
                   txFulfill={order.txFulfill}
                   createdAt={order.createdAt}
-                  onAuthenticate={handleAuthenticate}
-                  onGenerateProof={handleGenerateProof}
-                  onFulfill={handleFulfill}
-                  onRetry={handleRetry}
+                  onAuthenticate={() => handleAuthenticate(order.id)}
+                  onGenerateProof={() => handleGenerateProof(order.id)}
+                  onFulfill={() => handleFulfill(order.id)}
+                  onRetry={() => handleRetry(order.id)}
                 />
               ))}
             </div>
@@ -192,10 +192,10 @@ const Orders = () => {
                   txSignal={order.txSignal}
                   txFulfill={order.txFulfill}
                   createdAt={order.createdAt}
-                  onAuthenticate={handleAuthenticate}
-                  onGenerateProof={handleGenerateProof}
-                  onFulfill={handleFulfill}
-                  onRetry={handleRetry}
+                  onAuthenticate={() => handleAuthenticate(order.id)}
+                  onGenerateProof={() => handleGenerateProof(order.id)}
+                  onFulfill={() => handleFulfill(order.id)}
+                  onRetry={() => handleRetry(order.id)}
                 />
               ))}
             </div>
