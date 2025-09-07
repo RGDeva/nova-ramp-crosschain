@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { ArrowRight, DollarSign } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/PrivyProvider";
+import { useAccount, useConnect } from "wagmi";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import Layout from "@/components/Layout";
-import { PreflightChecklist } from "@/components/PreflightChecklist";
-import { InlineStepper, defaultOnrampSteps } from "@/components/InlineStepper";
 import { QuoteItem } from "@/components/QuoteItem";
 import ProviderSelector from "@/components/ProviderSelector";
-import { useAuth } from "@/contexts/PrivyProvider";
-import { useAccount, useConnect } from "wagmi";
+import { MiniStepper, defaultSteps, Step } from "@/components/MiniStepper";
+import { PreflightChecklist } from "@/components/PreflightChecklist";
+import Layout from "@/components/Layout";
+import { toast } from "sonner";
 
 interface Quote {
   provider: string;
@@ -31,20 +30,14 @@ const Onramp = () => {
   const [selectedProvider, setSelectedProvider] = useState("");
   const [selectedChain, setSelectedChain] = useState("base");
   const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [selectedQuote, setSelectedQuote] = useState<number>(-1);
   const [loading, setLoading] = useState(false);
-  const [orderStarted, setOrderStarted] = useState(false);
-  const [steps, setSteps] = useState(defaultOnrampSteps);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [stepperSteps, setStepperSteps] = useState<Step[]>(defaultSteps);
   
-  const { toast } = useToast();
   const { isAuthenticated, login } = useAuth();
   const { isConnected } = useAccount();
   const { connect, connectors } = useConnect();
-
-  const chains = [
-    { id: "base", name: "Base", symbol: "BASE" },
-    { id: "ethereum", name: "Ethereum", symbol: "ETH" },
-    { id: "arbitrum", name: "Arbitrum", symbol: "ARB" },
-  ];
 
   // Fetch quotes when amount and provider are set
   useEffect(() => {
@@ -61,46 +54,25 @@ const Onramp = () => {
       // Mock quotes - in real app would call ZKP2P API through our proxy
       const mockQuotes: Quote[] = [
         {
-          provider: "Venmo",
+          provider: "Best Rate",
           receiveAmount: (parseFloat(amount) * 0.995).toFixed(2),
           fees: { maker: 0.3, protocol: 0.2, gasEst: 2.50 },
           eta: "2-5 min",
           isBestPrice: true,
         },
         {
-          provider: "Cash App",
+          provider: "Standard Rate",
           receiveAmount: (parseFloat(amount) * 0.993).toFixed(2), 
           fees: { maker: 0.4, protocol: 0.2, gasEst: 2.50 },
           eta: "3-7 min",
         },
-        {
-          provider: "Revolut",
-          receiveAmount: (parseFloat(amount) * 0.990).toFixed(2),
-          fees: { maker: 0.5, protocol: 0.2, gasEst: 2.50 },
-          eta: "5-10 min",
-        }
       ];
-
-      // Sort by best price (highest receive amount) and mark the best
-      const sortedQuotes = mockQuotes.sort((a, b) => 
-        parseFloat(b.receiveAmount) - parseFloat(a.receiveAmount)
-      );
       
-      sortedQuotes[0].isBestPrice = true;
-      
-      setQuotes(sortedQuotes);
-      
-      // Auto-select the best provider
-      if (!selectedProvider || selectedProvider !== sortedQuotes[0].provider.toLowerCase()) {
-        setSelectedProvider(sortedQuotes[0].provider.toLowerCase());
-      }
+      setQuotes(mockQuotes);
+      setSelectedQuote(0); // Auto-select best quote
     } catch (error) {
       console.error('Failed to fetch quotes:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch quotes. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Failed to fetch quotes. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -118,73 +90,39 @@ const Onramp = () => {
 
   const handleStartOrder = async () => {
     if (!isAuthenticated || !isConnected) {
-      toast({
-        title: "Authentication Required",
-        description: "Please connect your wallet and authenticate with Privy.",
-        variant: "destructive",
-      });
+      toast.error("Please connect your wallet and authenticate.");
       return;
     }
 
     if (!amount || !selectedProvider) {
-      toast({
-        title: "Missing Information",
-        description: "Please enter an amount and select a provider.",
-        variant: "destructive",
-      });
+      toast.error("Please enter an amount and select a provider.");
       return;
     }
 
-    setOrderStarted(true);
+    setCurrentStep(1);
     
-    // Update stepper to show Start as done
-    setSteps(prev => prev.map(step => 
-      step.id === 'start' 
-        ? { ...step, status: 'done' }
-        : step.id === 'pay'
-        ? { ...step, status: 'active' }
-        : step
-    ));
+    // Update stepper to show Start as active
+    setStepperSteps(prev => prev.map((step, idx) => ({
+      ...step,
+      status: idx === 0 ? 'active' : 'idle'
+    })));
 
     try {
-      // Here would implement the actual ZKP2P flow:
-      // 1. Call signalIntent contract
-      // 2. Create order in database
-      // 3. Guide user through off-chain payment
-      // 4. Authenticate with PeerAuth
-      // 5. Generate proof
-      // 6. Call fulfillIntent
-
-      toast({
-        title: "Order Started!",
-        description: `Starting ${amount} USD onramp via ${selectedProvider}`,
-      });
-
-      // Mock progression through steps
+      // Mock order creation
+      toast.success(`Starting ${amount} USD onramp via ${selectedProvider}`);
+      
+      // Progress through steps
       setTimeout(() => {
-        setSteps(prev => prev.map(step => 
-          step.id === 'pay' 
-            ? { ...step, status: 'done' }
-            : step.id === 'auth'
-            ? { ...step, status: 'active' }
-            : step
-        ));
-      }, 2000);
+        setStepperSteps(prev => prev.map((step, idx) => ({
+          ...step,
+          status: idx === 0 ? 'done' : idx === 1 ? 'active' : 'idle'
+        })));
+      }, 1000);
 
     } catch (error) {
       console.error('Failed to start order:', error);
-      toast({
-        title: "Error",
-        description: "Failed to start order. Please try again.",
-        variant: "destructive",
-      });
-      
-      // Reset stepper on error
-      setSteps(prev => prev.map(step => 
-        step.id === 'start' 
-          ? { ...step, status: 'error' }
-          : { ...step, status: 'idle' }
-      ));
+      toast.error("Failed to start order. Please try again.");
+      setCurrentStep(0);
     }
   };
 
@@ -193,113 +131,115 @@ const Onramp = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-8 animate-fade-in">
-          <h1 className="text-3xl font-bold mb-2">On-Ramp</h1>
-          <p className="text-muted-foreground">
-            Pay off-chain. Prove privately. Receive USDC in minutes.
+        <div className="mb-8 animate-fade-in text-center">
+          <h1 className="text-4xl font-bold mb-2">
+            <span className="bg-gradient-primary bg-clip-text text-transparent">Buy Crypto</span>
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            Pay with Venmo, Cash App, or bank transfer • Receive USDC instantly
           </p>
         </div>
 
-        {/* Pre-flight Checklist */}
-        <div className="mb-6 animate-fade-in">
-          <PreflightChecklist
+        {/* Single Screen Layout */}
+        <div className="max-w-4xl mx-auto space-y-8">
+          <PreflightChecklist 
             onConnectWallet={handleConnectWallet}
             onConnectPrivy={handleConnectPrivy}
           />
-        </div>
 
-        {/* Main Form Card */}
-        <Card className="bg-gradient-surface border-border/50 animate-fade-in mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <DollarSign className="h-5 w-5 text-primary" />
-              <span>Amount & Provider</span>
-            </CardTitle>
-            <CardDescription>
-              Enter the amount and select your payment provider
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Amount Input */}
-            <div className="space-y-2">
-              <Label htmlFor="amount">Amount (USD)</Label>
-              <Input
-                id="amount"
-                type="number"
-                placeholder="100.00"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="bg-background/50 border-border/50"
-              />
-            </div>
+          <Card className="bg-gradient-surface border-border/50 animate-fade-in">
+            <CardContent className="p-8">
+              <div className="grid lg:grid-cols-2 gap-8">
+                {/* Left: Order Form */}
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="amount" className="text-base font-medium">Amount (USD)</Label>
+                        <Input
+                          id="amount"
+                          type="number"
+                          placeholder="100.00"
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
+                          className="bg-background/50 border-border/50 h-12 text-lg"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="chain" className="text-base font-medium">Destination</Label>
+                        <Select value={selectedChain} onValueChange={setSelectedChain}>
+                          <SelectTrigger className="bg-background/50 border-border/50 h-12">
+                            <SelectValue placeholder="Select chain" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="base">Base (USDC)</SelectItem>
+                            <SelectItem value="avalanche">Avalanche (USDC)</SelectItem>
+                            <SelectItem value="ethereum">Ethereum (USDC)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
 
-            {/* Chain Selector */}
-            <div className="space-y-2">
-              <Label htmlFor="chain">Destination Chain</Label>
-              <Select value={selectedChain} onValueChange={setSelectedChain}>
-                <SelectTrigger className="bg-background/50 border-border/50">
-                  <SelectValue placeholder="Select chain" />
-                </SelectTrigger>
-                <SelectContent>
-                  {chains.map((chain) => (
-                    <SelectItem key={chain.id} value={chain.id}>
-                      {chain.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Provider Selector */}
-            <ProviderSelector
-              selectedProvider={selectedProvider}
-              onProviderChange={setSelectedProvider}
-            />
-
-            {/* Quotes Section */}
-            {quotes.length > 0 && (
-              <div className="space-y-3 pt-4 border-t border-border/50">
-                <h3 className="font-medium">Live Quotes</h3>
-                {loading ? (
-                  <div className="space-y-3">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="h-16 bg-muted/50 rounded animate-pulse" />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {quotes.map((quote, index) => (
-                      <QuoteItem
-                        key={index}
-                        {...quote}
-                        isSelected={quote.provider.toLowerCase() === selectedProvider}
-                        onClick={() => setSelectedProvider(quote.provider.toLowerCase())}
+                    <div className="space-y-3">
+                      <Label className="text-base font-medium">Payment Method</Label>
+                      <ProviderSelector 
+                        selectedProvider={selectedProvider}
+                        onProviderChange={setSelectedProvider}
                       />
-                    ))}
+                    </div>
                   </div>
-                )}
+                </div>
+
+                {/* Right: Quotes & Action */}
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg">Quotes</h3>
+                    {loading ? (
+                      <div className="text-center text-muted-foreground py-8 border border-border/30 rounded-lg">
+                        Finding best rates...
+                      </div>
+                    ) : quotes.length > 0 ? (
+                      <div className="space-y-3">
+                        {quotes.map((quote, index) => (
+                          <QuoteItem
+                            key={index}
+                            provider={quote.provider}
+                            receiveAmount={quote.receiveAmount}
+                            fees={quote.fees}
+                            eta={quote.eta}
+                            isBestPrice={index === 0}
+                            isSelected={selectedQuote === index}
+                            onClick={() => setSelectedQuote(index)}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center text-muted-foreground py-8 border border-border/30 rounded-lg">
+                        {amount ? "No quotes yet—try another provider or amount." : "Enter an amount to see quotes"}
+                      </div>
+                    )}
+                  </div>
+
+                  <Button
+                    size="lg"
+                    className="w-full bg-gradient-primary hover:opacity-90 transition-opacity duration-nova"
+                    disabled={!canStartOrder}
+                    onClick={handleStartOrder}
+                  >
+                    Start Order
+                  </Button>
+                </div>
               </div>
-            )}
 
-            {/* Start Order Button */}
-            <Button 
-              className="w-full bg-gradient-primary hover:opacity-90 transition-opacity duration-nova"
-              onClick={handleStartOrder}
-              disabled={!canStartOrder || loading}
-              size="lg"
-            >
-              <span>Start Order</span>
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Order Progress Stepper */}
-        {orderStarted && (
-          <div className="animate-fade-in">
-            <InlineStepper steps={steps} />
-          </div>
-        )}
+              {/* Mini Stepper */}
+              {currentStep > 0 && (
+                <div className="mt-8 pt-8 border-t border-border/30">
+                  <MiniStepper steps={stepperSteps} className="justify-center" />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </Layout>
   );
