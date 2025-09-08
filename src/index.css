@@ -6,19 +6,19 @@
 
 @layer base {
   :root {
-    /* Nova Ramp Brand Colors */
-    --nova-bg: 220 23% 2.5%; /* #06070A */
-    --nova-surface: 219 38% 5.1%; /* #0B0F1A */
-    --nova-elevated: 220 23% 11%; /* #111827 */
+    /* Nova Ramp Brand Colors - Light Theme */
+    --nova-bg: 0 0% 100%; /* Pure white */
+    --nova-surface: 220 14% 98%; /* Very light gray */
+    --nova-elevated: 220 14% 96%; /* Light gray */
     --nova-primary: 262 83% 58%; /* #7C3AED */
     --nova-primary-muted: 258 90% 73%; /* #A78BFA */
     --nova-accent: 187 85% 54%; /* #22D3EE */
     --nova-success: 158 64% 52%; /* #10B981 */
     --nova-warning: 38 92% 50%; /* #F59E0B */
     --nova-error: 0 84% 60%; /* #EF4444 */
-    --nova-text: 220 13% 91%; /* #E5E7EB */
-    --nova-text-muted: 220 9% 67%; /* #9CA3AF */
-    --nova-border: 220 23% 18%; /* #1F2937 */
+    --nova-text: 220 23% 15%; /* Dark text for light background */
+    --nova-text-muted: 220 9% 46%; /* Darker muted text */
+    --nova-border: 220 14% 91%; /* Light border */
     
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--nova-primary)), hsl(var(--nova-accent)));
