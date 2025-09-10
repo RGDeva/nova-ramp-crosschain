@@ -61,14 +61,82 @@ export type Database = {
           },
         ]
       }
+      deposits_offchain_meta: {
+        Row: {
+          conversion_rate: number
+          created_at: string
+          currency: string
+          deposit_id: string
+          fee_percentage: number
+          hashed_onchain_id: string
+          id: string
+          is_active: boolean
+          max_amount: number
+          min_amount: number
+          normalized_payee_id: string
+          provider: string
+          raw_payee_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conversion_rate: number
+          created_at?: string
+          currency?: string
+          deposit_id: string
+          fee_percentage?: number
+          hashed_onchain_id: string
+          id?: string
+          is_active?: boolean
+          max_amount: number
+          min_amount: number
+          normalized_payee_id: string
+          provider: string
+          raw_payee_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conversion_rate?: number
+          created_at?: string
+          currency?: string
+          deposit_id?: string
+          fee_percentage?: number
+          hashed_onchain_id?: string
+          id?: string
+          is_active?: boolean
+          max_amount?: number
+          min_amount?: number
+          normalized_payee_id?: string
+          provider?: string
+          raw_payee_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deposits_offchain_meta_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           chain_id: number | null
           created_at: string | null
+          deposit_id: string | null
+          error_message: string | null
           fiat_amount: number | null
           fiat_currency: string | null
           id: string
           intent_hash: string | null
+          metadata: Json | null
+          order_id: string | null
+          order_type: string | null
+          proof_bytes: string | null
           provider: string | null
           status: string | null
           token_amount: number | null
@@ -80,10 +148,16 @@ export type Database = {
         Insert: {
           chain_id?: number | null
           created_at?: string | null
+          deposit_id?: string | null
+          error_message?: string | null
           fiat_amount?: number | null
           fiat_currency?: string | null
           id?: string
           intent_hash?: string | null
+          metadata?: Json | null
+          order_id?: string | null
+          order_type?: string | null
+          proof_bytes?: string | null
           provider?: string | null
           status?: string | null
           token_amount?: number | null
@@ -95,10 +169,16 @@ export type Database = {
         Update: {
           chain_id?: number | null
           created_at?: string | null
+          deposit_id?: string | null
+          error_message?: string | null
           fiat_amount?: number | null
           fiat_currency?: string | null
           id?: string
           intent_hash?: string | null
+          metadata?: Json | null
+          order_id?: string | null
+          order_type?: string | null
+          proof_bytes?: string | null
           provider?: string | null
           status?: string | null
           token_amount?: number | null
@@ -108,6 +188,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_orders_deposit_id"
+            columns: ["deposit_id"]
+            isOneToOne: false
+            referencedRelation: "deposits_offchain_meta"
+            referencedColumns: ["deposit_id"]
+          },
           {
             foreignKeyName: "orders_user_id_fkey"
             columns: ["user_id"]

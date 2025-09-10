@@ -1,5 +1,11 @@
 project_id = "xjuucrjxoiyojtanyjyq"
 
+[functions.quotes]
+verify_jwt = false
+
+[functions.zkp2p-proxy]
+verify_jwt = false
+
 [functions.session]
 verify_jwt = false
 
