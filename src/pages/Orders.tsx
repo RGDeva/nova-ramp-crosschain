@@ -1,55 +1,44 @@
-import { useState, useCallback } from "react";
-import { RefreshCw, ExternalLink, Clock, CheckCircle, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useState, useEffect, useCallback } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import { OrderTimelineCard } from "@/components/OrderTimelineCard";
 import { useAuth } from "@/contexts/PrivyProvider";
+import { fetchUserOrders, updateOrder, Order } from "@/lib/inova-api";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, RefreshCw } from "lucide-react";
 
 const Orders = () => {
-  const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<string>("");
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
 
-  // Mock orders data - in real app would fetch from Supabase
-  const mockOrders = [
-    {
-      id: "ord_1a2b3c4d",
-      type: "Onramp",
-      provider: "Venmo", 
-      amount: "$100.00",
-      currency: "USDC",
-      status: "proving" as const,
-      txSignal: "0x1234567890abcdef1234567890abcdef12345678",
-      txFulfill: null,
-      createdAt: "2024-01-15T10:30:00Z",
-    },
-    {
-      id: "ord_2b3c4d5e",
-      type: "Onramp",
-      provider: "Cash App",
-      amount: "$50.00",
-      currency: "USDC",
-      status: "fulfilled" as const,
-      txSignal: "0x2345678901bcdef02345678901bcdef023456789",
-      txFulfill: "0x3456789012cdef103456789012cdef1034567890",
-      createdAt: "2024-01-14T15:45:00Z",
-    },
-    {
-      id: "ord_3c4d5e6f",
-      type: "Onramp", 
-      provider: "Revolut",
-      amount: "$75.00",
-      currency: "USDC",
-      status: "failed" as const,
-      txSignal: null,
-      txFulfill: null,
-      createdAt: "2024-01-13T09:15:00Z",
-    },
-  ];
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadOrders();
+    }
+  }, [isAuthenticated]);
+
+  const loadOrders = async () => {
+    try {
+      setLoading(true);
+      const userOrders = await fetchUserOrders();
+      setOrders(userOrders);
+    } catch (error) {
+      console.error('Failed to load orders:', error);
+      toast({
+        title: "Failed to load orders",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAuthenticate = useCallback((orderId: string) => {
     toast({

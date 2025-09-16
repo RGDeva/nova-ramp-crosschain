@@ -51,28 +51,50 @@ const Onramp = () => {
   const fetchQuotes = async () => {
     setLoading(true);
     try {
-      // Mock quotes - in real app would call ZKP2P API through our proxy
+      // Import the API function
+      const { fetchQuotes: apiFetchQuotes } = await import("@/lib/inova-api");
+      
+      // Fetch real quotes from our API
+      const apiQuotes = await apiFetchQuotes(
+        parseFloat(amount),
+        selectedProvider,
+        'USD',
+        'onramp'
+      );
+
+      // Convert API quotes to our format
+      const formattedQuotes: Quote[] = apiQuotes.map((quote, index) => ({
+        provider: quote.provider,
+        receiveAmount: quote.netAmount.toFixed(2),
+        fees: {
+          maker: quote.fees.maker,
+          protocol: quote.fees.protocol,
+          gasEst: 2.50 // Mock gas estimate
+        },
+        eta: quote.eta,
+        isBestPrice: index === 0
+      }));
+      
+      setQuotes(formattedQuotes);
+      if (formattedQuotes.length > 0) {
+        setSelectedQuote(0); // Auto-select best quote
+      }
+    } catch (error) {
+      console.error('Failed to fetch quotes:', error);
+      toast.error("Failed to fetch quotes. Please try again.");
+      
+      // Fallback to mock quotes
       const mockQuotes: Quote[] = [
         {
-          provider: "Best Rate",
+          provider: selectedProvider || "Best Rate",
           receiveAmount: (parseFloat(amount) * 0.995).toFixed(2),
           fees: { maker: 0.3, protocol: 0.2, gasEst: 2.50 },
           eta: "2-5 min",
           isBestPrice: true,
-        },
-        {
-          provider: "Standard Rate",
-          receiveAmount: (parseFloat(amount) * 0.993).toFixed(2), 
-          fees: { maker: 0.4, protocol: 0.2, gasEst: 2.50 },
-          eta: "3-7 min",
-        },
+        }
       ];
-      
       setQuotes(mockQuotes);
-      setSelectedQuote(0); // Auto-select best quote
-    } catch (error) {
-      console.error('Failed to fetch quotes:', error);
-      toast.error("Failed to fetch quotes. Please try again.");
+      setSelectedQuote(0);
     } finally {
       setLoading(false);
     }
@@ -94,8 +116,8 @@ const Onramp = () => {
       return;
     }
 
-    if (!amount || !selectedProvider) {
-      toast.error("Please enter an amount and select a provider.");
+    if (!amount || !selectedProvider || selectedQuote === -1) {
+      toast.error("Please enter an amount, select a provider, and choose a quote.");
       return;
     }
 
@@ -108,8 +130,21 @@ const Onramp = () => {
     })));
 
     try {
-      // Mock order creation
-      toast.success(`Starting ${amount} USD onramp via ${selectedProvider}`);
+      // Import the API function
+      const { createOrder } = await import("@/lib/inova-api");
+      const selectedQuoteData = quotes[selectedQuote];
+      
+      // Create order through our API
+      const order = await createOrder({
+        depositId: `deposit_${Date.now()}`, // In real app, get from quote
+        orderType: 'onramp',
+        provider: selectedProvider,
+        fiatAmount: parseFloat(amount),
+        tokenAmount: parseFloat(selectedQuoteData.receiveAmount),
+        conversionRate: parseFloat(selectedQuoteData.receiveAmount) / parseFloat(amount)
+      });
+
+      toast.success(`Order created! Order ID: ${order.orderId}`);
       
       // Progress through steps
       setTimeout(() => {
@@ -119,10 +154,18 @@ const Onramp = () => {
         })));
       }, 1000);
 
+      // Redirect to orders page after a delay
+      setTimeout(() => {
+        window.location.href = '/orders';
+      }, 2000);
+
     } catch (error) {
       console.error('Failed to start order:', error);
       toast.error("Failed to start order. Please try again.");
       setCurrentStep(0);
+      
+      // Reset stepper
+      setStepperSteps(defaultSteps);
     }
   };
 
