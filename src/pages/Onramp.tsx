@@ -144,7 +144,7 @@ const Onramp = () => {
         conversionRate: parseFloat(selectedQuoteData.receiveAmount) / parseFloat(amount)
       });
 
-      toast.success(`Order created! Order ID: ${order.orderId}`);
+      toast.success(`Order created! Order ID: ${order.order_id || order.id}`);
       
       // Progress through steps
       setTimeout(() => {

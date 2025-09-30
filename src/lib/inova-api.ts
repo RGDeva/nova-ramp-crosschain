@@ -20,12 +20,25 @@ export interface Quote {
 }
 
 export interface Order {
-  orderId: string
-  status: 'pending' | 'signaled' | 'proving' | 'fulfilled' | 'cancelled' | 'failed'
-  fiatAmount: number
-  tokenAmount: number
-  provider: string
-  createdAt: string
+  id: string
+  order_id: string | null
+  user_id: string | null
+  fiat_amount: number | null
+  token_amount: number | null
+  fiat_currency: string | null
+  provider: string | null
+  status: string | null
+  tx_signal: string | null
+  tx_fulfill: string | null
+  created_at: string
+  updated_at: string
+  metadata: any
+  deposit_id: string | null
+  order_type: string | null
+  proof_bytes: string | null
+  error_message: string | null
+  intent_hash: string | null
+  chain_id: number | null
 }
 
 export interface CreateOrderRequest {

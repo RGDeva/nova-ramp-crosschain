@@ -69,15 +69,16 @@ const Orders = () => {
   }, [toast]);
 
   const filteredOrders = (status?: string) => {
-    if (!status || status === 'all') return mockOrders;
-    return mockOrders.filter(order => {
+    if (!status || status === 'all') return orders;
+    return orders.filter(order => {
+      const orderStatus = order.status || '';
       switch (status) {
         case 'pending':
-          return ['created', 'paying', 'auth', 'proving'].includes(order.status);
+          return ['created', 'paying', 'auth', 'proving'].includes(orderStatus);
         case 'completed':
-          return order.status === 'fulfilled';
+          return orderStatus === 'fulfilled';
         case 'failed':
-          return ['failed', 'expired'].includes(order.status);
+          return ['failed', 'expired'].includes(orderStatus);
         default:
           return true;
       }
@@ -104,89 +105,129 @@ const Orders = () => {
 
           <TabsContent value="all" className="space-y-4 mt-6">
             <div className="grid gap-4">
-              {filteredOrders('all').map((order) => (
-                <OrderTimelineCard
-                  key={order.id}
-                  orderId={order.id}
-                  provider={order.provider}
-                  amount={order.amount}
-                  currency={order.currency}
-                  status={order.status}
-                  txSignal={order.txSignal}
-                  txFulfill={order.txFulfill}
-                  createdAt={order.createdAt}
-                  onAuthenticate={() => handleAuthenticate(order.id)}
-                  onGenerateProof={() => handleGenerateProof(order.id)}
-                  onFulfill={() => handleFulfill(order.id)}
-                  onRetry={() => handleRetry(order.id)}
-                />
-              ))}
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : filteredOrders('all').length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  No orders found
+                </div>
+              ) : (
+                filteredOrders('all').map((order) => (
+                  <OrderTimelineCard
+                    key={order.id}
+                    orderId={order.order_id || order.id}
+                    provider={order.provider || 'Unknown'}
+                    amount={order.fiat_amount?.toString() || '0'}
+                    currency={order.fiat_currency || 'USD'}
+                    status={order.status as any || 'created'}
+                    txSignal={order.tx_signal || undefined}
+                    txFulfill={order.tx_fulfill || undefined}
+                    createdAt={order.created_at}
+                    onAuthenticate={() => handleAuthenticate(order.id)}
+                    onGenerateProof={() => handleGenerateProof(order.id)}
+                    onFulfill={() => handleFulfill(order.id)}
+                    onRetry={() => handleRetry(order.id)}
+                  />
+                ))
+              )}
             </div>
           </TabsContent>
 
           <TabsContent value="pending" className="space-y-4 mt-6">
             <div className="grid gap-4">
-              {filteredOrders('pending').map((order) => (
-                <OrderTimelineCard
-                  key={order.id}
-                  orderId={order.id}
-                  provider={order.provider}
-                  amount={order.amount}
-                  currency={order.currency}
-                  status={order.status}
-                  txSignal={order.txSignal}
-                  txFulfill={order.txFulfill}
-                  createdAt={order.createdAt}
-                  onAuthenticate={() => handleAuthenticate(order.id)}
-                  onGenerateProof={() => handleGenerateProof(order.id)}
-                  onFulfill={() => handleFulfill(order.id)}
-                  onRetry={() => handleRetry(order.id)}
-                />
-              ))}
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : filteredOrders('pending').length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  No pending orders
+                </div>
+              ) : (
+                filteredOrders('pending').map((order) => (
+                  <OrderTimelineCard
+                    key={order.id}
+                    orderId={order.order_id || order.id}
+                    provider={order.provider || 'Unknown'}
+                    amount={order.fiat_amount?.toString() || '0'}
+                    currency={order.fiat_currency || 'USD'}
+                    status={order.status as any || 'created'}
+                    txSignal={order.tx_signal || undefined}
+                    txFulfill={order.tx_fulfill || undefined}
+                    createdAt={order.created_at}
+                    onAuthenticate={() => handleAuthenticate(order.id)}
+                    onGenerateProof={() => handleGenerateProof(order.id)}
+                    onFulfill={() => handleFulfill(order.id)}
+                    onRetry={() => handleRetry(order.id)}
+                  />
+                ))
+              )}
             </div>
           </TabsContent>
 
           <TabsContent value="completed" className="space-y-4 mt-6">
             <div className="grid gap-4">
-              {filteredOrders('completed').map((order) => (
-                <OrderTimelineCard
-                  key={order.id}
-                  orderId={order.id}
-                  provider={order.provider}
-                  amount={order.amount}
-                  currency={order.currency}
-                  status={order.status}
-                  txSignal={order.txSignal}
-                  txFulfill={order.txFulfill}
-                  createdAt={order.createdAt}
-                  onAuthenticate={() => handleAuthenticate(order.id)}
-                  onGenerateProof={() => handleGenerateProof(order.id)}
-                  onFulfill={() => handleFulfill(order.id)}
-                  onRetry={() => handleRetry(order.id)}
-                />
-              ))}
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : filteredOrders('completed').length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  No completed orders
+                </div>
+              ) : (
+                filteredOrders('completed').map((order) => (
+                  <OrderTimelineCard
+                    key={order.id}
+                    orderId={order.order_id || order.id}
+                    provider={order.provider || 'Unknown'}
+                    amount={order.fiat_amount?.toString() || '0'}
+                    currency={order.fiat_currency || 'USD'}
+                    status={order.status as any || 'created'}
+                    txSignal={order.tx_signal || undefined}
+                    txFulfill={order.tx_fulfill || undefined}
+                    createdAt={order.created_at}
+                    onAuthenticate={() => handleAuthenticate(order.id)}
+                    onGenerateProof={() => handleGenerateProof(order.id)}
+                    onFulfill={() => handleFulfill(order.id)}
+                    onRetry={() => handleRetry(order.id)}
+                  />
+                ))
+              )}
             </div>
           </TabsContent>
 
           <TabsContent value="failed" className="space-y-4 mt-6">
             <div className="grid gap-4">
-              {filteredOrders('failed').map((order) => (
-                <OrderTimelineCard
-                  key={order.id}
-                  orderId={order.id}
-                  provider={order.provider}
-                  amount={order.amount}
-                  currency={order.currency}
-                  status={order.status}
-                  txSignal={order.txSignal}
-                  txFulfill={order.txFulfill}
-                  createdAt={order.createdAt}
-                  onAuthenticate={() => handleAuthenticate(order.id)}
-                  onGenerateProof={() => handleGenerateProof(order.id)}
-                  onFulfill={() => handleFulfill(order.id)}
-                  onRetry={() => handleRetry(order.id)}
-                />
-              ))}
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : filteredOrders('failed').length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  No failed orders
+                </div>
+              ) : (
+                filteredOrders('failed').map((order) => (
+                  <OrderTimelineCard
+                    key={order.id}
+                    orderId={order.order_id || order.id}
+                    provider={order.provider || 'Unknown'}
+                    amount={order.fiat_amount?.toString() || '0'}
+                    currency={order.fiat_currency || 'USD'}
+                    status={order.status as any || 'created'}
+                    txSignal={order.tx_signal || undefined}
+                    txFulfill={order.tx_fulfill || undefined}
+                    createdAt={order.created_at}
+                    onAuthenticate={() => handleAuthenticate(order.id)}
+                    onGenerateProof={() => handleGenerateProof(order.id)}
+                    onFulfill={() => handleFulfill(order.id)}
+                    onRetry={() => handleRetry(order.id)}
+                  />
+                ))
+              )}
             </div>
           </TabsContent>
         </Tabs>
