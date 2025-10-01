@@ -8,6 +8,7 @@ import Onramp from "./pages/Onramp";
 import Offramp from "./pages/Offramp";
 import Orders from "./pages/Orders";
 import Settings from "./pages/Settings";
+import Verify from "./pages/Verify";
 import NotFound from "./pages/NotFound";
 
 const App = () => (
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/offramp" element={<Offramp />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/verify" element={<Verify />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

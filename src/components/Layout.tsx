@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { ArrowLeftRight, Repeat, History, Settings } from "lucide-react";
+import { Wallet, ShoppingBag, Settings, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import novaLogo from "@/assets/nova-logo.svg";
 
@@ -13,9 +13,10 @@ const Layout = ({ children }: LayoutProps) => {
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
-    { path: "/onramp", label: "On-Ramp", icon: ArrowLeftRight },
-    { path: "/offramp", label: "Off-Ramp", icon: Repeat },
-    { path: "/orders", label: "Orders", icon: History },
+    { path: "/onramp", label: "Buy", icon: Wallet },
+    { path: "/offramp", label: "Sell", icon: Wallet },
+    { path: "/orders", label: "My Orders", icon: ShoppingBag },
+    { path: "/verify", label: "Verify", icon: Shield },
     { path: "/settings", label: "Settings", icon: Settings },
   ];
 

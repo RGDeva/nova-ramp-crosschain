@@ -4,12 +4,33 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/contexts/PrivyProvider";
+import { WelcomeOnboarding } from "@/components/WelcomeOnboarding";
+import { useState, useEffect } from "react";
 
 const Index = () => {
   const { isAuthenticated, login } = useAuth();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    // Show onboarding only once for new users
+    const hasSeenOnboarding = localStorage.getItem("hasSeenOnboarding");
+    if (!hasSeenOnboarding && isAuthenticated) {
+      setShowOnboarding(true);
+    }
+  }, [isAuthenticated]);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem("hasSeenOnboarding", "true");
+    setShowOnboarding(false);
+  };
 
   return (
     <Layout>
+      <WelcomeOnboarding 
+        open={showOnboarding} 
+        onComplete={handleOnboardingComplete} 
+      />
+      
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in">
@@ -19,10 +40,10 @@ const Index = () => {
             </span>
           </h1>
           <p className="text-xl text-muted-foreground">
-            Pay off-chain. Prove privately. Settle on-chain.
+            Buy and sell crypto with complete privacy. No complicated blockchain stuff.
           </p>
           <div className="mt-4 text-sm text-muted-foreground">
-            No account signup. KYC requirements may vary by region/provider.
+            No signup required • Simple verification • Lightning fast
           </div>
         </div>
 
@@ -39,21 +60,21 @@ const Index = () => {
               </div>
               <CardTitle className="text-2xl">Buy Crypto</CardTitle>
               <p className="text-muted-foreground">
-                Buy crypto with Venmo/Cash App
+                Use Venmo or Cash App • Get USDC in minutes
               </p>
             </CardHeader>
             <CardContent className="pt-2">
               <div className="space-y-3 text-sm text-muted-foreground mb-6">
                 <div className="flex items-center justify-between">
-                  <span>• Instant payments</span>
+                  <span>• Money arrives in 2-5 minutes</span>
                   <span className="text-nova-success">✓</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span>• Zero-knowledge privacy</span>
+                  <span>• Your payments stay private</span>
                   <span className="text-nova-success">✓</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span>• Cross-chain support</span>
+                  <span>• Works with any wallet</span>
                   <span className="text-nova-success">✓</span>
                 </div>
               </div>
@@ -64,7 +85,7 @@ const Index = () => {
                   asChild
                 >
                   <Link to="/onramp" className="flex items-center justify-center space-x-2">
-                    <span>Start Onramp</span>
+                    <span>Buy Crypto Now</span>
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -92,21 +113,21 @@ const Index = () => {
               </div>
               <CardTitle className="text-2xl">Sell Crypto</CardTitle>
               <p className="text-muted-foreground">
-                Sell crypto to cash
+                Convert USDC to cash • Fast bank transfers
               </p>
             </CardHeader>
             <CardContent className="pt-2">
               <div className="space-y-3 text-sm text-muted-foreground mb-6">
                 <div className="flex items-center justify-between">
-                  <span>• Bank transfer to any account</span>
+                  <span>• Cash in your bank quickly</span>
                   <span className="text-nova-success">✓</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span>• Competitive exchange rates</span>
+                  <span>• Best rates guaranteed</span>
                   <span className="text-nova-success">✓</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span>• Private transactions</span>
+                  <span>• Completely private</span>
                   <span className="text-nova-success">✓</span>
                 </div>
               </div>
@@ -117,7 +138,7 @@ const Index = () => {
                   asChild
                 >
                   <Link to="/offramp" className="flex items-center justify-center space-x-2">
-                    <span>Start Offramp</span>
+                    <span>Sell Crypto Now</span>
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
